@@ -93,46 +93,64 @@ var OTA = {
     },
 
     auth: function () {
-        if (window.location.search && window.location.search.split('?').length == 2) {
-            var kv = window.location.search.split('?')[1].split('&');
-            console.log(kv);
+        var auth_one = function () {
+            if (window.location.search && window.location.search.split('?').length == 2) {
+                var kv = window.location.search.split('?')[1].split('&');
+                console.log(kv);
 
-            $(kv).each(function () {
-                var a = this.split('=');
-                var code = '';
-                if (a.length == 2 && a[0] == 'code') {
-                    console.log('拿到回调返回的 code');
-                    console.log(a);
+                $(kv).each(function () {
+                    var a = this.split('=');
+                    var code = '';
+                    if (a.length == 2 && a[0] == 'code') {
+                        console.log('拿到回调返回的 code');
+                        console.log(a);
 
-                    code = a[1];
-                }
+                        code = a[1];
+                    }
 
-                if (code.length) {
-                    OTA.get("token_url", {
-                        client_id: OTA.data.id,
-                        client_secret: OTA.data.key,
-                        grant_type: 'authorization_code',
-                        redirect_uri: OTA.getLocationUrl(),
-                        code: code,
-                        dataType: 'json'
-                    }, function (res) {
-                        console.log('拿到回调返回的 token');
-                        console.log(res);
+                    if (code.length) {
+                        OTA.get("token_url", {
+                            client_id: OTA.data.id,
+                            client_secret: OTA.data.key,
+                            grant_type: 'authorization_code',
+                            redirect_uri: OTA.getLocationUrl(),
+                            code: code,
+                            dataType: 'json'
+                        }, function (res) {
+                            console.log('拿到回调返回的 token');
+                            console.log(res);
 
-                        if (res.error) {
-                            alert(res.error_description);
-                        } else {
-                            chrome.storage.sync.set({
-                                'authorize_token': res
-                            }, function () {
-                                // 通知保存完成。
-                                console.log('token 已保存');
-                            });
-                        }
-                    });
-                }
-            });
+                            if (res.error) {
+                                alert(res.error_description);
+                            } else {
+                                chrome.storage.sync.set({
+                                    'authorize_token': res
+                                }, function () {
+                                    // 通知保存完成。
+                                    console.log('token 已保存');
+                                    window.close();
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                var au_url = OTA.getAuthUrl();
+
+                //window.location = au_url;
+                window.open(au_url);
+            }
         }
+
+        chrome.storage.sync.get('authorize_token', function (token) {
+            console.log('authorize_token 已读取');
+            console.log(token);
+            if (token.authorize_token && token.authorize_token.access_token) {
+
+            } else {
+                auth_one();
+            }
+        });
     }
 };
 
@@ -169,9 +187,22 @@ var OTT = {
         html += '</ul>'
 
         return html;
+    },
+    userinfo: function (ui) {
+        var html = '<div class="userinfo">';
+        html += ui;
+        html += '</div>'
+
+        return html;
     }
 };
 
+
+// oschins 数据存放
+var OTD = {
+    //我的用户信息
+    myinfo: {}
+}
 
 
 //oschina 动弹的处理函数库
@@ -201,19 +232,33 @@ var OTF = {
         friend = parseInt(friend);
 
         if (!id || id < 1) {
-            chrome.storage.sync.get('authorize_token', function (token) {
-                console.log('token 已读取');
-                console.log(token);
+            var show = function (ui) {
+                $("#DynaInfo").html(OTT.userinfo(ui));
+            }
 
-                OTA.get('my_information', {
-                    access_token: token.authorize_token.access_token,
-                    dataType: 'json'
-                }, function (res) {
-                    console.log('读取用户信息');
-                    console.log(res);
+            if (OTD.myinfo.length) {
+                console.log('本地有用户数据');
+                console.log(OTD);
+                show(OTD.myinfo);
+            } else {
+                chrome.storage.sync.get('authorize_token', function (token) {
+                    console.log('token 已读取');
+                    console.log(token);
+
+                    OTA.get('my_information', {
+                        access_token: token.authorize_token.access_token,
+                        dataType: 'json'
+                    }, function (res) {
+                        console.log('读取用户信息');
+                        console.log(res);
+
+                        OTD.myinfo = res;
+
+                        show(res);
+                    });
+
                 });
-
-            });
+            }
         } else {
             OTA.get('user_information', {
                 client_id: OTA.data.id,

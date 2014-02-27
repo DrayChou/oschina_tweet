@@ -32,9 +32,5 @@ $(document).ready(function () {
 
     $("#a_show_pop").click(function () {
 
-        var au_url = OTA.getAuthUrl();
-
-        window.location = au_url;
-        //window.open(au_url);
     });
 });
