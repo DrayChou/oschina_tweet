@@ -1,14 +1,18 @@
 $(document).ready(function () {
-    OTA.init({
+    var OTA = new oschina_tweet_api({
         //OSCHINA 应用 id
         id: 'KTWAuwxdcxxv1EL5OQcT',
         //OSCHINA 应用 key
         key: 'wA3OBjusv6hST2nNFzxshVbu3xuqcOyJ'
-    }).auth();
-
+    });
+    var OTF = new oschina_tweet_fun(OTA);
+    
+    //请求授权
+    OTA.auth();
+    
+    //默认呈现页面
     OTF.showlist(0, 1);
-    OTF.userinfo();
-
+    
     $("#a_showlist_new").click(function () {
         $("div.Pageer").slideDown();
         OTF.showlist(0, 1, this);
@@ -31,6 +35,6 @@ $(document).ready(function () {
     });
 
     $("#a_show_pop").click(function () {
-
+        OTF.userinfo();
     });
 });

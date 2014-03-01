@@ -1,7 +1,8 @@
-//oschina 动弹的相关API库
-var OTA = {
+//oschina 动弹的相关API类库
+var oschina_tweet_api = function (settings) {
+    var _this = this;
 
-    data: {
+    _this.settings = {
         //OSCHINA 应用 id
         id: '',
         //OSCHINA 应用 key
@@ -43,33 +44,61 @@ var OTA = {
         active_list: "http://www.oschina.net/action/openapi/active_list",
         //更新好友关系（加关注、取消关注）
         update_user_relation: "http://www.oschina.net/action/openapi/update_user_relation"
-    },
+    };
+    $.extend(_this.settings, settings);
 
-    init: function (settings) {
-        $.extend(OTA.data, settings);
-        return this;
-    },
-
-    post: function (api, settings, callback) {
+    _this.post = function (api, data, callback) {
         console.log(api);
-        console.log(settings);
+        console.log(data);
         console.log(callback);
 
-        if (!OTA.data[api]) {
+        if (!_this.settings[api]) {
             return false;
         }
-        $.post(OTA.data[api], settings, function (res) {
+
+        $.ajax({
+            type: 'POST',
+            url: _this.settings[api],
+            data: data,
+            dataType: "json"
+        }).done(function (res) {
+            console.log('请求成功');
             console.log(res);
             callback(res);
-        }, 'json');
+        }).fail(function (res) {
+            console.warn('请求失败');
+            console.log(res);
+
+            var error = res.responseJSON;
+            var msg = '请求失败';
+            if (error.error) {
+                if (error.error == 400) {
+                    msg = '无效请求（缺少必要参数）';
+                } else if (error.error == 401) {
+                    msg = error.error_description;
+                    if (msg.split(':')[0] == 'Invalid access token') {
+                        chrome.storage.sync.remove('authorize_token', function (res) {
+                            // 通知保存完成。
+                            console.log('已删除 authorize_token ，要求用户重新授权');
+                            console.log(res);
+                        });
+                    }
+                } else {
+                    msg = '意料之外的错误';
+                }
+                callback(res);
+            } else {
+                msg = res.statusText;
+            }
+
+            console.warn(msg);
+            alert(msg);
+        });
         return;
-    },
+    };
+    _this.get = _this.post;
 
-    get: function (api, settings, callback) {
-        return OTA.post(api, settings, callback);
-    },
-
-    getLocationUrl: function (encode) {
+    _this.getLocationUrl = function (encode) {
         var url = window.location.origin;
         if (window.location.port) {
             url = url + ':' + window.location.port;
@@ -81,69 +110,66 @@ var OTA = {
         }
 
         return url;
-    },
+    };
 
-    getAuthUrl: function () {
-        var url = OTA.data.authorize_url + '?' +
-            'client_id=' + OTA.data.id + '&' +
-            'response_type=code' + '&' +
-            'redirect_uri=' + OTA.getLocationUrl(1) + '&' +
-            'state=authorize';
-        return url;
-    },
-
-    auth: function () {
+    _this.auth = function () {
         var auth_one = function () {
             if (window.location.search && window.location.search.split('?').length == 2) {
                 var kv = window.location.search.split('?')[1].split('&');
                 console.log(kv);
 
+                var code = '';
                 $(kv).each(function () {
                     var a = this.split('=');
-                    var code = '';
                     if (a.length == 2 && a[0] == 'code') {
                         console.log('拿到回调返回的 code');
                         console.log(a);
 
                         code = a[1];
                     }
-
-                    if (code.length) {
-                        OTA.get("token_url", {
-                            client_id: OTA.data.id,
-                            client_secret: OTA.data.key,
-                            grant_type: 'authorization_code',
-                            redirect_uri: OTA.getLocationUrl(),
-                            code: code,
-                            dataType: 'json'
-                        }, function (res) {
-                            console.log('拿到回调返回的 token');
-                            console.log(res);
-
-                            if (res.error) {
-                                alert(res.error_description);
-                            } else {
-                                chrome.storage.sync.set({
-                                    'authorize_token': res
-                                }, function () {
-                                    // 通知保存完成。
-                                    console.log('token 已保存');
-                                    window.close();
-                                });
-                            }
-                        });
-                    }
                 });
-            } else {
-                var au_url = OTA.getAuthUrl();
 
-                //window.location = au_url;
-                window.open(au_url);
+                if (code.length) {
+                    _this.get("token_url", {
+                        client_id: _this.settings.id,
+                        client_secret: _this.settings.key,
+                        grant_type: 'authorization_code',
+                        redirect_uri: _this.getLocationUrl(),
+                        code: code,
+                        dataType: 'json'
+                    }, function (res) {
+                        console.log('拿到回调返回的 token');
+                        console.log(res);
+
+                        if (res.error) {
+                            console.warn(res.error_description);
+                            alert(res.error_description);
+                        } else {
+                            chrome.storage.sync.set({
+                                'authorize_token': res
+                            }, function (res2) {
+                                // 通知保存完成。
+                                console.log('chrome.storage.sync.set authorize_token：');
+                                console.log(res2);
+                                window.close();
+                            });
+                        }
+                    });
+                }
+            } else {
+                var url = _this.settings.authorize_url + '?' +
+                    'client_id=' + _this.settings.id + '&' +
+                    'response_type=code' + '&' +
+                    'redirect_uri=' + _this.getLocationUrl(1) + '&' +
+                    'state=authorize';
+
+                //window.location = url;
+                window.open(url);
             }
         }
 
         chrome.storage.sync.get('authorize_token', function (token) {
-            console.log('authorize_token 已读取');
+            console.log('chrome.storage.sync.get authorize_token 已读取');
             console.log(token);
             if (token.authorize_token && token.authorize_token.access_token) {
 
@@ -151,9 +177,8 @@ var OTA = {
                 auth_one();
             }
         });
-    }
-};
-
+    };
+}
 
 
 //oschina 动弹模板函数库
@@ -197,18 +222,12 @@ var OTT = {
     }
 };
 
+//oschina 动弹的处理函数类库
+var oschina_tweet_fun = function (oschina_tweet_api) {
+    var _this = this;
 
-// oschins 数据存放
-var OTD = {
-    //我的用户信息
-    myinfo: {}
-}
-
-
-//oschina 动弹的处理函数库
-var OTF = {
     //显示列表
-    showlist: function (id, page, a) {
+    _this.showlist = function (id, page, a) {
         if (a) {
             $("#nav_showname").text($(a).text());
             $(".navbar-toggle").trigger('click');
@@ -219,56 +238,67 @@ var OTF = {
 
         $("ul.pager").attr("data-tltype", id).attr("data-tlpage", page);
 
-        OTA.get('tweet_list', {
-            client_id: OTA.data.id,
+        oschina_tweet_api.get('tweet_list', {
+            client_id: oschina_tweet_api.settings.id,
             user: id,
             page: page
         }, function (res) {
-            $("#DynaInfo").html(OTT.tweet_list(res.tweetlist));
+            if (res.error) {
+                console.warn(res.error_description);
+                alert(res.error_description);
+            } else {
+                console.log('列表载入成功');
+                $("#DynaInfo").html(OTT.tweet_list(res.tweetlist));
+            }
         });
-    },
-    userinfo: function (id, friend) {
+    };
+
+    //读取并呈现用户信息
+    _this.userinfo = function (id, friend) {
         id = parseInt(id);
         friend = parseInt(friend);
 
+        var show = function (ui) {
+            $("#DynaInfo").html(OTT.userinfo(ui));
+        }
+
         if (!id || id < 1) {
-            var show = function (ui) {
-                $("#DynaInfo").html(OTT.userinfo(ui));
-            }
+            chrome.storage.sync.get('authorize_token', function (token) {
+                console.log('chrome.storage.sync.get authorize_token 已读取');
+                console.log(token);
 
-            if (OTD.myinfo.length) {
-                console.log('本地有用户数据');
-                console.log(OTD);
-                show(OTD.myinfo);
-            } else {
-                chrome.storage.sync.get('authorize_token', function (token) {
-                    console.log('token 已读取');
-                    console.log(token);
-
-                    OTA.get('my_information', {
+                if (token && token.authorize_token) {
+                    oschina_tweet_api.get('my_information', {
                         access_token: token.authorize_token.access_token,
                         dataType: 'json'
                     }, function (res) {
-                        console.log('读取用户信息');
-                        console.log(res);
-
-                        OTD.myinfo = res;
-
-                        show(res);
+                        if (res.error) {
+                            console.warn(res.error_description);
+                            alert(res.error_description);
+                        } else {
+                            console.log('我的信息载入成功');
+                            show(res);
+                        }
                     });
-
-                });
-            }
+                } else {
+                    oschina_tweet_api.auth();
+                }
+            });
         } else {
-            OTA.get('user_information', {
-                client_id: OTA.data.id,
+            oschina_tweet_api.get('user_information', {
+                client_id: oschina_tweet_api.settings.id,
                 user: id,
                 friend: friend,
                 dataType: 'json'
             }, function (res) {
-                console.log('读取用户信息');
-                console.log(res);
+                if (res.error) {
+                    console.warn(res.error_description);
+                    alert(res.error_description);
+                } else {
+                    console.log('用户信息载入成功');
+                    show(res);
+                }
             });
         }
-    }
+    };
 };
