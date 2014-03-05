@@ -112,7 +112,7 @@ var oschina_tweet_api = function (settings) {
         return url;
     };
 
-    _this.auth = function () {
+    _this.auth = function (fun) {
         var auth_one = function () {
             if (window.location.search && window.location.search.split('?').length == 2) {
                 var kv = window.location.search.split('?')[1].split('&');
@@ -145,12 +145,17 @@ var oschina_tweet_api = function (settings) {
                             console.warn(res.error_description);
                             alert(res.error_description);
                         } else {
+                            if (fun) {
+                                fun(res);
+                            }
+
                             chrome.storage.sync.set({
                                 'authorize_token': res
                             }, function (res2) {
                                 // 通知保存完成。
                                 console.log('chrome.storage.sync.set authorize_token：');
                                 console.log(res2);
+
                                 window.close();
                             });
                         }
@@ -171,35 +176,139 @@ var oschina_tweet_api = function (settings) {
         chrome.storage.sync.get('authorize_token', function (token) {
             console.log('chrome.storage.sync.get authorize_token 已读取');
             console.log(token);
-            if (token.authorize_token && token.authorize_token.access_token) {
-
+            if (token && token.authorize_token && token.authorize_token.access_token) {
+                if (fun) {
+                    fun(token.authorize_token);
+                }
             } else {
                 auth_one();
             }
         });
     };
+
+    _this.getTweetlist = function (id, page, fun, noticefun) {
+        _this.get('tweet_list', {
+            client_id: _this.settings.id,
+            user: id,
+            page: page
+        }, function (res) {
+            if (res.error) {
+                console.warn(res.error_description);
+                alert(res.error_description);
+            } else {
+                console.log('列表载入成功');
+                if (fun) {
+                    fun(res.tweetlist);
+                }
+                if (noticefun) {
+                    noticefun(res.notice);
+                }
+            }
+        });
+    };
+
+    _this.userInfo = function (id, fun) {
+        _this.get('user_information', {
+            client_id: _this.settings.id,
+            //user: user_id,
+            friend: id,
+            dataType: 'json'
+        }, function (res) {
+            if (res.error) {
+                console.warn(res.error_description);
+                alert(res.error_description);
+            } else {
+                console.log('用户信息载入成功');
+
+
+                if (fun) {
+                    fun(res);
+                }
+            }
+        });
+    };
+
+    _this.myInfo = function (fun) {
+        _this.auth(function (token) {
+            _this.get('my_information', {
+                access_token: token.access_token,
+                dataType: 'json'
+            }, function (res) {
+                if (res.error) {
+                    console.warn(res.error_description);
+                    alert(res.error_description);
+                } else {
+                    console.log('我的信息 api 读取成功');
+                    console.log(res);
+
+                    if (fun) {
+                        fun(res);
+                    }
+
+                    chrome.storage.sync.set({
+                        'my_information': res
+                    }, function (res2) {
+                        // 通知保存完成。
+                        console.log('chrome.storage.sync.set my_information：');
+                        console.log(res2);
+                    });
+                }
+            });
+        });
+    };
+
+    _this.myList = function (page, fun, noticefun) {
+        chrome.storage.sync.get('my_information', function (info) {
+            console.log('chrome.storage.sync.get my_information 已读取');
+            console.log(info);
+
+            if (info && info.my_information && info.my_information.user) {
+                _this.getTweetlist(info.my_information.user, page, fun, noticefun);
+            } else {
+                _this.myInfo(function (info) {
+                    _this.getTweetlist(info.user, page, fun, noticefun);
+                });
+            }
+        });
+    };
+
+    _this.tweet = function (msg, img, fun) {
+        _this.auth(function (token) {
+            _this.post('tweet_pub', {
+                access_token: token.access_token,
+                msg: msg,
+                img: img
+            }, function (res) {
+                console.log('发布动弹 api 读取成功');
+                console.log(res);
+
+                if (fun) {
+                    fun(res);
+                }
+            });
+        });
+    }
 }
 
 
 //oschina 动弹模板函数库
 var OTT = {
     tweet: function (t) {
+        var url = 'http://my.oschina.net/u/' + t.authorid + '/tweet/' + t.id;
+
         var html = '';
-        html += '<li>';
-        html += '    <span class="portrait">';
-        html += '        <a href="http://my.oschina.net/' + t.authorid + '" target="_blank">';
-        html += '            <img src="' + t.portrait + '" align="absmiddle" alt="Vity" title="Vity" class="SmallPortrait" user="265660">';
-        html += '        </a>';
+        html += '<li class="user" id="' + t.id + '">';
+        html += '    <span class="img" data-id="' + t.authorid + '">';
+        html += '        <img src="' + t.portrait + '" align="absmiddle" alt="Vity" title="Vity" class="img-responsive" user="' + t.authorid + '">';
         html += '    </span>';
-        html += '    <span class="body" id="' + t.id + '">';
-        html += '        <span class="user">';
-        html += '            <a href="http://my.oschina.net/' + t.authorid + '">' + t.author + '</a>：</span>';
+        html += '    <div class="body">';
+        html += '        <span class="name">';
+        html += '        ' + t.author + '：</span>';
         html += '        <span class="log">' + t.body + '</span>';
-        html += '        <span class="time">' + t.pubDate + ' (';
-        html += '            <a href="http://my.oschina.net/' + t.authorid + '/tweet/' + t.id + '">0评</a>)';
-        html += '        </span>';
-        html += '    </span>';
-        html += '    <div class="clear"></div>';
+        html += '        <p class="time">' + t.pubDate + ' (';
+        html += '            <a target="_blank" href="' + url + '" class="comment" id="comment_' + t.id + '">' + t.commentCount + '评</a>)';
+        html += '        </p>';
+        html += '    </div>';
         html += '</li>';
 
         return html;
@@ -214,9 +323,17 @@ var OTT = {
         return html;
     },
     userinfo: function (ui) {
-        var html = '<div class="userinfo">';
-        html += ui;
-        html += '</div>'
+        var url = 'http://my.oschina.net/' + ui.ident;
+
+        var html = '';
+        html += '<div class="left">';
+        html += '    <img class="img-responsive" src="' + ui.portrait + '" title="' + ui.name + '"/>';
+        html += '</div>';
+        html += '<div class="right">';
+        html += '    <span class="name"><a target="_blank" href="' + url + '" >' + ui.name + '</a></span><br/>';
+        html += '    <span class="city">' + ui.province + '-' + ui.city + '</span><br/>';
+        html += '    <span class="jointime">' + ui.joinTime + '</span>';
+        html += '</div>';
 
         return html;
     }
@@ -227,7 +344,7 @@ var oschina_tweet_fun = function (oschina_tweet_api) {
     var _this = this;
 
     //显示列表
-    _this.showlist = function (id, page, a) {
+    _this.showlist = function (id, page, a, fun) {
         if (a) {
             $("#nav_showname").text($(a).text());
             $(".navbar-toggle").trigger('click');
@@ -238,67 +355,44 @@ var oschina_tweet_fun = function (oschina_tweet_api) {
 
         $("ul.pager").attr("data-tltype", id).attr("data-tlpage", page);
 
-        oschina_tweet_api.get('tweet_list', {
-            client_id: oschina_tweet_api.settings.id,
-            user: id,
-            page: page
-        }, function (res) {
-            if (res.error) {
-                console.warn(res.error_description);
-                alert(res.error_description);
-            } else {
-                console.log('列表载入成功');
-                $("#DynaInfo").html(OTT.tweet_list(res.tweetlist));
+        var show = function (tweetlist) {
+            $("div.row").hide();
+            $("#DynaInfo").html(OTT.tweet_list(tweetlist)).slideDown();
+            $("div.Pageer").show();
+
+            if (fun) {
+                fun();
             }
-        });
+        }
+
+        id = parseInt(id);
+        if (id < -1) {
+            oschina_tweet_api.myList(page, show);
+        } else {
+            oschina_tweet_api.getTweetlist(id, page, show);
+        }
     };
 
     //读取并呈现用户信息
-    _this.userinfo = function (id, friend) {
+    _this.userinfo = function (id, fun) {
         id = parseInt(id);
-        friend = parseInt(friend);
 
-        var show = function (ui) {
-            $("#DynaInfo").html(OTT.userinfo(ui));
+        var show = function (info) {
+            _this.showlist(info.user, 0, undefined, function () {
+                $("#UserInfo").html(OTT.userinfo(info)).show();
+
+                if (fun) {
+                    fun();
+                }
+            });
         }
 
-        if (!id || id < 1) {
-            chrome.storage.sync.get('authorize_token', function (token) {
-                console.log('chrome.storage.sync.get authorize_token 已读取');
-                console.log(token);
-
-                if (token && token.authorize_token) {
-                    oschina_tweet_api.get('my_information', {
-                        access_token: token.authorize_token.access_token,
-                        dataType: 'json'
-                    }, function (res) {
-                        if (res.error) {
-                            console.warn(res.error_description);
-                            alert(res.error_description);
-                        } else {
-                            console.log('我的信息载入成功');
-                            show(res);
-                        }
-                    });
-                } else {
-                    oschina_tweet_api.auth();
-                }
-            });
+        if (isNaN(id) || id < 1) {
+            oschina_tweet_api.myInfo(show);
         } else {
-            oschina_tweet_api.get('user_information', {
-                client_id: oschina_tweet_api.settings.id,
-                user: id,
-                friend: friend,
-                dataType: 'json'
-            }, function (res) {
-                if (res.error) {
-                    console.warn(res.error_description);
-                    alert(res.error_description);
-                } else {
-                    console.log('用户信息载入成功');
-                    show(res);
-                }
-            });
+            oschina_tweet_api.userInfo(id, show);
         }
     };
+
+
 };

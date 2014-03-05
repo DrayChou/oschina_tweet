@@ -67,24 +67,40 @@
         </div>
     </div>
 
-    <div id="OSC_Screen" class="container">
+    <div id="OSC_Content" class="container">
 
-        <div id="OSC_Content" class="jumbotron">
-            <div id="DynaInfo" class="row">
-
-            </div>
-            <div class="Pageer">
-                <ul class="pager" data-tltype="" data-tlpage="">
-                    <li>
-                        <a id="a_reload" href="#">重新载入</a>
-                    </li>
-                    <li>
-                        <a id="a_loadmore" href="#">载入更多</a>
-                    </li>
-                </ul>
+        <div id="TweetPub" class="row">
+            <div role="form">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">动弹一下</label>
+                    <textarea class="form-control" rows="3" name="msg"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputFile">附加图片</label>
+                    <input type="file" name="img">
+                </div>
+                <button type="input" class="btn btn-primary btn-block">动弹</button>
             </div>
         </div>
 
+        <div id="UserInfo" class="row">
+
+        </div>
+
+        <div id="DynaInfo" class="row">
+
+        </div>
+
+        <div class="row Pageer" class="row">
+            <ul class="pager" data-tltype="" data-tlpage="">
+                <li>
+                    <a id="a_reload" href="#">重新载入</a>
+                </li>
+                <li>
+                    <a id="a_loadmore" href="#">载入更多</a>
+                </li>
+            </ul>
+        </div>
     </div>
     <!-- /container -->
 </body>

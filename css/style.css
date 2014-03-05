@@ -1,265 +1,50 @@
-* {
-    margin: 0;
-    padding: 0;
-}
-ul,
-ol {
-    list-style-type: none;
-}
 body {
-    font-size: 10pt;
+    padding-top: 70px;
 }
-body,
-table,
-input,
-textarea,
-select,
-button {
-    font-family: 微软雅黑, Verdana, sans-serif, 宋体;
-}
-#OSC_Screen {
-    margin: 0px auto;
-    text-align: left;
-    padding: 0 4px;
-    margin-top: 70px;
-    width: auto;
-}
-#OSC_Content {
-    width: 340px;
-}
-#DynaInfo {
-    margin: 0 0 10px 0;
-}
-#DynaInfo h3 {
+div.Pageer {
     font-size: 14px;
-    margin: 0 0 15px 0;
-    background: url('../img/space/msg.png') no-repeat left 2px;
-    padding: 0 0 0px 24px;
-    border-bottom: 1px solid #ccc;
-    height: 24px;
-    line-height: 24px;
 }
-#DynaInfo h3 .holiday {
-    color: #C00;
+div.row{
+    width: 360px;
+    font-size: 12px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
-#DynaInfo form {
-    margin: 0 0 10px 0;
-    border: 1px solid #40AA53;
-    background: #40AA53;
-    position: relative;
-    height: 40px;
+#UserInfo {
+    margin-bottom: 20px;
 }
-#DynaInfo textarea {
+#UserInfo .left {
     float: left;
-    width: 233px;
-    height: 36px;
-    padding: 2px;
-    resize: none;
-    overflow: auto;
-    border: 0;
-    background: #fff;
-    font-size: 9pt;
-    -webkit-appearance: none;
-    border-radius: 0;
-}
-#DynaInfo textarea:focus {
-    border: 0;
-}
-#DynaInfo button {
-    float: right;
-    width: 37px;
-    height: 40px;
-    margin-right: 3px;
-    font-size: 10pt;
-    border: 0;
-    background: #40AA53;
-    color: #fff;
-}
-#DynaInfo button:hover {
-    color: #ff0;
-    cursor: pointer;
-}
-#DynaInfo #DivPubStatus {
+    width: 60px;
     text-align: center;
-    position: absolute;
-    top: 10px;
-    left: 90px;
-    font-size: 12pt;
-    color: #060;
-    display: none;
+}
+#UserInfo .left img {
+    margin-top: 2px;
+}
+#UserInfo .right {
+    margin-left: 70px;
+}
+#DynaInfo ul {
+    padding-left: 0px;
 }
 #DynaInfo ul li {
-    margin: 0 0 5px 0;
-    padding: 0 0 8px 0;
+    overflow: auto;
+    clear: both;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: inherit;
 }
-#DynaInfo ul li .portrait {
+#DynaInfo ul li.user .img {
     float: left;
-    width: 45px;
-    padding-top: 3px;
-}
-#DynaInfo ul li .portrait img {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #ccc;
-    padding: 1px;
-    background: #fff;
-}
-#DynaInfo ul li .body {
-    float: left;
-    width: 230px;
-    overflow: hidden;
-    font-size: 9pt;
-}
-#DynaInfo ul li .user a {
-    color: #6cabe1;
-}
-#DynaInfo ul li .log {
-    color: #666;
-    word-break: break-all;
-}
-#DynaInfo ul li .log a {
-    color: #6cabe1;
-    word-break: break-all;
-}
-#DynaInfo ul li .log img {
-    vertical-align: middle;
-}
-#DynaInfo ul li .time {
-    display: block;
-    color: #9A9A9A;
-    margin: 5px 0 0 0;
-}
-#DynaInfo ul li .time a {
-    color: #9A9A9A;
-    text-decoration: none;
-}
-#DynaInfo ul li .time a:hover {
-    color: #6cabe1;
-}
-#DynaInfo .TweetsSwitcher {
-    border-top: 2px solid #40AA52;
-    width: 100%;
-}
-#DynaInfo .TweetsSwitcher a {
-    text-decoration: none;
-}
-#DynaInfo .TweetsSwitcher li {
-    margin: 0;
-    padding: 0 5px;
-    border: 0;
-    float: left;
-    height: 22px;
-    line-height: 22px;
-}
-#DynaInfo .TweetsSwitcher .img {
-    border: 0;
-    margin: 0;
-    padding: 0;
-    height: 22px;
-    width: 20px;
-}
-#DynaInfo .TweetsSwitcher .img_new_on {
-    background: url('../img/tweetsSwitcher1.gif') no-repeat;
-}
-#DynaInfo .TweetsSwitcher .img_new_off {
-    background: url('../img/tweetsSwitcher3.gif') no-repeat;
-}
-#DynaInfo .TweetsSwitcher .img_top_on {
-    background: url('../img/tweetsSwitcher4.gif') no-repeat;
-}
-#DynaInfo .TweetsSwitcher .img_top_off {
-    background: url('../img/tweetsSwitcher2.gif') no-repeat;
-}
-#DynaInfo .TweetsSwitcher .sw {
-    background-color: #E7E7E7;
+    width: 60px;
     cursor: pointer;
 }
-#DynaInfo .TweetsSwitcher .sw a {
-    color: #666;
+#DynaInfo ul li.user img {
+    margin: auto;
 }
-#DynaInfo .TweetsSwitcher .sw a:hover {
-    color: #000;
+#DynaInfo ul li div.body {
+    margin-left: 66px;
 }
-#DynaInfo .TweetsSwitcher .on {
-    background-color: #40AA52;
-}
-#DynaInfo .TweetsSwitcher .on a {
-    color: #fff;
-}
-#DynaInfo .TweetsSwitcher .on a:hover {
-    color: #fff;
-}
-#DynaInfo .TweetsSwitcher .more {
-    margin: 0;
-    float: right;
-    color: #A00;
-    padding: 0;
-}
-#TweetReplyForm {
-    margin: 0 0 20px 0px;
-}
-#TweetReplyForm textarea {
-    display: block;
-    width: 98%;
-    height: 40px;
-    font-size: 9pt;
-    padding: 2px;
-    margin: 10px 0 5px 0;
-}
-#TweetReplyForm .TweetReplyOptions {
-    float: right;
-}
-#TweetReplyForm #btn_submit {
-    padding: 2px 3px;
-    font-weight: bold;
-    margin-right: 5px;
-}
-.TweetRpls h6 {
-    font-size: 10pt;
-    margin: 10px 0 5px 0;
-    border-bottom: 1px solid #cccccc;
-    padding-bottom: 5px;
-}
-.TweetRpls ul {
-    font-size: 9pt;
-}
-.TweetRpls li {
-    border-bottom: 1px dashed #cccccc;
-    padding: 10px 0 5px 0;
-}
-.TweetRpls li .portrait {
-    width: 30px;
-}
-.TweetRpls li .portrait img {
-    width: 24px;
-    height: 24px;
-    margin: 5px 0 0 0;
-}
-.TweetRpls li .TweetReplyBody {
-    overflow: hidden;
-}
-.TweetRpls li .TweetReplyBody .post {
-    line-height: 20px;
-}
-.TweetRpls li .TweetReplyBody .opts {
-    float: none;
-    font-size: 8pt;
-    -webkit-text-size-adjust: none;
-    color: #999999;
-    margin: 10px 0 0 0;
-    height: 18px;
-}
-.TweetRpls li .TweetReplyBody .opts .links {
-    float: right;
-}
-.TweetRpls li .TweetReplyBody .opts a {
-    font-size: 9pt;
-}
-.TweetRpls .all {
-    display: block;
-    margin: 10px 0 0 0;
-}
-
-div.Pageer{
-    font-size: 14px;
+#TweetPub button{
+    margin-bottom: 30px;
 }

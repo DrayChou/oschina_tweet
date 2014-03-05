@@ -6,21 +6,27 @@ $(document).ready(function () {
         key: 'wA3OBjusv6hST2nNFzxshVbu3xuqcOyJ'
     });
     var OTF = new oschina_tweet_fun(OTA);
-    
+
+    $(location).change(function () {
+        console.log(this);
+    });
+
     //请求授权
     OTA.auth();
-    
+
     //默认呈现页面
     OTF.showlist(0, 1);
     
     $("#a_showlist_new").click(function () {
-        $("div.Pageer").slideDown();
         OTF.showlist(0, 1, this);
     });
 
     $("#a_showlist_hot").click(function () {
-        $("div.Pageer").slideUp();
         OTF.showlist(-1, 1, this);
+    });
+
+    $("#a_showlist_my").click(function () {
+        OTF.showlist(-2, 1, this);
     });
 
     $("#a_reload").click(function () {
@@ -35,6 +41,28 @@ $(document).ready(function () {
     });
 
     $("#a_show_pop").click(function () {
-        OTF.userinfo();
+        $("div.row").hide();
+        $("div#TweetPub").slideDown();
+        $(".navbar-toggle").trigger('click');
+    });
+
+    $("#TweetPub .btn-primary").click(function () {
+        var msg = $("#TweetPub textarea[name='msg']").val();
+        var img = $("#TweetPub input[name='img']").val();
+        OTA.tweet(msg, img, function (res) {
+            if (res.error == "200") {
+                $("#a_showlist_new").trigger('click');
+
+                $("#TweetPub input").val('');
+                $("#TweetPub textarea").val('');
+            } else {
+                alert(res.error_description);
+            }
+        });
+    });
+
+    $("#DynaInfo").on('click', '.user .img', function () {
+        var id = $(this).attr('data-id');
+        OTF.userinfo(id);
     });
 });
