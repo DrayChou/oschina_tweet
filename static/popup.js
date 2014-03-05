@@ -1,9 +1,28 @@
 $(document).ready(function () {
+    $('.fancybox').fancybox();
+    /*
+    author: "月黑风高宁"
+    authorid: 230028
+    body: "#语音分享#"
+    commentCount: 0
+    id: 3222493
+    imgBig: "2014/0306/000210_16Yv_230028.amr"
+    imgSmall: "2014/0306/000210_16Yv_230028.amr"
+    portrait: "http://www.oschina.net/img/portrait.gif"
+    pubDate: "2014-03-06 00:02:10"
+    */
+    
+    var id = 'mTuCV2GOcZIwBqBiIZuT';
+    var key = 'naMko5IBOkickVJnTYqVC8VUL755RKBd';
+    if (location.hostname == 'mlpdehhkdhediahlmbdfpelmehilgofn') {
+        id = 'KTWAuwxdcxxv1EL5OQcT';
+        key = 'wA3OBjusv6hST2nNFzxshVbu3xuqcOyJ';
+    }
     var OTA = new oschina_tweet_api({
         //OSCHINA 应用 id
-        id: 'KTWAuwxdcxxv1EL5OQcT',
+        id: id,
         //OSCHINA 应用 key
-        key: 'wA3OBjusv6hST2nNFzxshVbu3xuqcOyJ'
+        key: key
     });
     var OTF = new oschina_tweet_fun(OTA);
 
@@ -16,7 +35,7 @@ $(document).ready(function () {
 
     //默认呈现页面
     OTF.showlist(0, 1);
-    
+
     $("#a_showlist_new").click(function () {
         OTF.showlist(0, 1, this);
     });

@@ -305,6 +305,11 @@ var OTT = {
         html += '        <span class="name">';
         html += '        ' + t.author + '：</span>';
         html += '        <span class="log">' + t.body + '</span>';
+        if (t.imgSmall && t.imgBig) {
+            if (/(jpg|png|gif|jpge)$/i.test(t.imgBig)) {
+                html += '            <p><a target="_top" href="' + t.imgBig + '" class="fancybox"><img src="' + t.imgSmall + '"/></a></p>';
+            }
+        }
         html += '        <p class="time">' + t.pubDate + ' (';
         html += '            <a target="_blank" href="' + url + '" class="comment" id="comment_' + t.id + '">' + t.commentCount + '评</a>)';
         html += '        </p>';
