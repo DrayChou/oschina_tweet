@@ -11,7 +11,7 @@ $(document).ready(function () {
     portrait: "http://www.oschina.net/img/portrait.gif"
     pubDate: "2014-03-06 00:02:10"
     */
-    
+
     var id = 'mTuCV2GOcZIwBqBiIZuT';
     var key = 'naMko5IBOkickVJnTYqVC8VUL755RKBd';
     if (location.hostname == 'mlpdehhkdhediahlmbdfpelmehilgofn') {
@@ -67,8 +67,7 @@ $(document).ready(function () {
 
     $("#TweetPub .btn-primary").click(function () {
         var msg = $("#TweetPub textarea[name='msg']").val();
-        var img = $("#TweetPub input[name='img']")[0].files[0];
-
+        var img = ''; //$("#TweetPub input[name='img']").val();
         OTA.tweet(msg, img, function (res) {
             if (res.error == "200") {
                 $("#a_showlist_new").trigger('click');

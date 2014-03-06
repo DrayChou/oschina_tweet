@@ -74,29 +74,31 @@
 
     <div id="OSC_Content" class="container">
 
-        <div id="TweetPub" class="row">
+        <div id="TweetPub" class="row" style="display:none">
             <div role="form">
                 <div class="form-group">
                     <label for="exampleInputEmail1">动弹一下</label>
                     <textarea class="form-control" rows="3" name="msg"></textarea>
                 </div>
+<!--
                 <div class="form-group">
                     <label for="exampleInputFile">附加图片</label>
-                    <input type="file" name="img">
+                    <input id="fileupload" type="file" name="img">
                 </div>
+-->
                 <button type="input" class="btn btn-primary btn-block">动弹</button>
             </div>
         </div>
 
-        <div id="UserInfo" class="row">
+        <div id="UserInfo" class="row" style="display:none">
 
         </div>
 
-        <div id="DynaInfo" class="row">
+        <div id="DynaInfo" class="row" style="display:none">
 
         </div>
 
-        <div class="row Pageer" class="row">
+        <div class="row Pageer" class="row" style="display:none">
             <ul class="pager" data-tltype="" data-tlpage="">
                 <li>
                     <a id="a_reload" href="#">重新载入</a>
