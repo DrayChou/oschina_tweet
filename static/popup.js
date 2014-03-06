@@ -67,7 +67,8 @@ $(document).ready(function () {
 
     $("#TweetPub .btn-primary").click(function () {
         var msg = $("#TweetPub textarea[name='msg']").val();
-        var img = $("#TweetPub input[name='img']").val();
+        var img = $("#TweetPub input[name='img']")[0].files[0];
+
         OTA.tweet(msg, img, function (res) {
             if (res.error == "200") {
                 $("#a_showlist_new").trigger('click');

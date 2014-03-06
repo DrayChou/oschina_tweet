@@ -350,6 +350,11 @@ var oschina_tweet_fun = function (oschina_tweet_api) {
 
     //显示列表
     _this.showlist = function (id, page, a, fun) {
+
+        if ($ && $.fancybox) {
+            $.fancybox.showLoading();
+        }
+
         if (a) {
             $("#nav_showname").text($(a).text());
             $(".navbar-toggle").trigger('click');
@@ -368,6 +373,10 @@ var oschina_tweet_fun = function (oschina_tweet_api) {
             if (fun) {
                 fun();
             }
+
+            if ($ && $.fancybox) {
+                $.fancybox.hideLoading();
+            }
         }
 
         id = parseInt(id);
@@ -382,12 +391,20 @@ var oschina_tweet_fun = function (oschina_tweet_api) {
     _this.userinfo = function (id, fun) {
         id = parseInt(id);
 
+        if ($ && $.fancybox) {
+            $.fancybox.showLoading();
+        }
+
         var show = function (info) {
             _this.showlist(info.user, 0, undefined, function () {
                 $("#UserInfo").html(OTT.userinfo(info)).show();
 
                 if (fun) {
                     fun();
+                }
+
+                if ($ && $.fancybox) {
+                    $.fancybox.hideLoading();
                 }
             });
         }
